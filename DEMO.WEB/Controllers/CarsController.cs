@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using DEMO.VM;
 using DEMO.VM.Car;
-using DEMO.VM.User;
 using DEMO.WEB.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -23,14 +21,14 @@ namespace DEMO.WEB.Controllers
         public async Task<IActionResult> Index()
         {
             var json = await client.GetStringAsync(APIDATA.URL + $"Cars/Index");
-            var users = JsonConvert.DeserializeObject<IEnumerable<CarIndexViewModel>>(json);
+            var users = JsonSerializer.Deserialize<IEnumerable<CarIndexViewModel>>(json);
             return View(users);
         }
 
         public async Task<IActionResult> Create()
         {
             var json = await client.GetStringAsync(APIDATA.URL + $"Users/Select");
-            var users = JsonConvert.DeserializeObject<IEnumerable<SelectItem>>(json);
+            var users = JsonSerializer.Deserialize<IEnumerable<SelectItem>>(json);
             ViewData["OwnerId"] = new SelectList(users, "Value", "Text");
             return View();
         }
@@ -43,7 +41,7 @@ namespace DEMO.WEB.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var serializedItem = JsonConvert.SerializeObject(user);
+                    var serializedItem = JsonSerializer.Serialize(user);
                     var response = await client.PostAsync(APIDATA.URL + $"Cars", new StringContent(serializedItem, Encoding.UTF8, "application/json"));
                     if (response.IsSuccessStatusCode)
                     {
@@ -60,7 +58,7 @@ namespace DEMO.WEB.Controllers
                 AddModelError();
             }
             var json = await client.GetStringAsync(APIDATA.URL + $"Users/Select");
-            var users = JsonConvert.DeserializeObject<IEnumerable<SelectItem>>(json);
+            var users = JsonSerializer.Deserialize<IEnumerable<SelectItem>>(json);
             ViewData["OwnerId"] = new SelectList(users, "Value", "Text");
             return View(user);
         }
@@ -72,8 +70,8 @@ namespace DEMO.WEB.Controllers
             var jsonCar = await client.GetStringAsync(APIDATA.URL + $"Cars/Edit/{id}");
             var jsonUser = await client.GetStringAsync(APIDATA.URL + $"Users/Select");
 
-            var car = JsonConvert.DeserializeObject<CarEditViewModel>(jsonCar);
-            var users = JsonConvert.DeserializeObject<IEnumerable<SelectItem>>(jsonUser);
+            var car = JsonSerializer.Deserialize<CarEditViewModel>(jsonCar);
+            var users = JsonSerializer.Deserialize<IEnumerable<SelectItem>>(jsonUser);
 
             ViewData["OwnerId"] = new SelectList(users, "Value", "Text", car.OwnerId);
 
@@ -90,7 +88,7 @@ namespace DEMO.WEB.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var serializedItem = JsonConvert.SerializeObject(car);
+                    var serializedItem = JsonSerializer.Serialize(car);
                     var response = await client.PutAsync(APIDATA.URL + $"Cars/{id}", new StringContent(serializedItem, Encoding.UTF8, "application/json"));
                     if (response.IsSuccessStatusCode)
                     {
@@ -107,7 +105,7 @@ namespace DEMO.WEB.Controllers
                 AddModelError();
             }
             var json = await client.GetStringAsync(APIDATA.URL + $"Users/Select");
-            var users = JsonConvert.DeserializeObject<IEnumerable<SelectItem>>(json);
+            var users = JsonSerializer.Deserialize<IEnumerable<SelectItem>>(json);
             ViewData["OwnerId"] = new SelectList(users, "Value", "Text", car.OwnerId);
             return View(car);
         }
@@ -117,7 +115,7 @@ namespace DEMO.WEB.Controllers
             if (id == null) return NotFound();
 
             var json = await client.GetStringAsync(APIDATA.URL + $"Cars/Details/{id}");
-            var car = JsonConvert.DeserializeObject<CarDetailsViewModel>(json);
+            var car = JsonSerializer.Deserialize<CarDetailsViewModel>(json);
 
             return car == null ? NotFound() : View(car);
         }
@@ -132,7 +130,7 @@ namespace DEMO.WEB.Controllers
             }
 
             var json = await client.GetStringAsync(APIDATA.URL + $"Cars/Delete/{id}");
-            var car = JsonConvert.DeserializeObject<CarDeleteViewModel>(json);
+            var car = JsonSerializer.Deserialize<CarDeleteViewModel>(json);
 
             return car == null ? NotFound() : View(car);
         }

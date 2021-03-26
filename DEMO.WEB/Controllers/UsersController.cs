@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DEMO.VM.User;
 using DEMO.WEB.Models;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -19,7 +19,7 @@ namespace DEMO.WEB.Controllers
         public async Task<IActionResult> Index()
         {
             var json = await client.GetStringAsync(APIDATA.URL + $"Users/Index");
-            var users = JsonConvert.DeserializeObject<IEnumerable<UserIndexViewModel>>(json);
+            var users = JsonSerializer.Deserialize<IEnumerable<UserIndexViewModel>>(json);
             return View(users);
         }
 
@@ -33,7 +33,7 @@ namespace DEMO.WEB.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var serializedItem = JsonConvert.SerializeObject(user);
+                    var serializedItem = JsonSerializer.Serialize(user);
                     var response = await client.PostAsync(APIDATA.URL + $"Users", new StringContent(serializedItem, Encoding.UTF8, "application/json"));
                     if (response.IsSuccessStatusCode)
                     {
@@ -57,7 +57,7 @@ namespace DEMO.WEB.Controllers
             if (id == null) return NotFound();
 
             var json = await client.GetStringAsync(APIDATA.URL + $"Users/Edit/{id}");
-            var user = JsonConvert.DeserializeObject<UserEditViewModel>(json);
+            var user = JsonSerializer.Deserialize<UserEditViewModel>(json);
 
             return user == null ? NotFound() : View(user);
         }
@@ -72,7 +72,7 @@ namespace DEMO.WEB.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var serializedItem = JsonConvert.SerializeObject(user);
+                    var serializedItem = JsonSerializer.Serialize(user);
                     var response = await client.PutAsync(APIDATA.URL + $"Users/{id}", new StringContent(serializedItem, Encoding.UTF8, "application/json"));
                     if (response.IsSuccessStatusCode)
                     {
@@ -96,7 +96,7 @@ namespace DEMO.WEB.Controllers
             if (id == null) return NotFound();
 
             var json = await client.GetStringAsync(APIDATA.URL + $"Users/Details/{id}");
-            var user = JsonConvert.DeserializeObject<UserDetailsViewModel>(json);
+            var user = JsonSerializer.Deserialize<UserDetailsViewModel>(json);
 
             return user == null ? NotFound() : View(user);
         }
@@ -111,7 +111,7 @@ namespace DEMO.WEB.Controllers
             }
 
             var json = await client.GetStringAsync(APIDATA.URL + $"Users/Delete/{id}");
-            var user = JsonConvert.DeserializeObject<UserDeleteViewModel>(json);
+            var user = JsonSerializer.Deserialize<UserDeleteViewModel>(json);
 
             return user == null ? NotFound() : View(user);
         }
