@@ -4,6 +4,7 @@ using System.Linq;
 using DEMO.DAL.Models;
 using DEMO.VM;
 using DEMO.VM.User;
+using Microsoft.EntityFrameworkCore;
 
 namespace DEMO.DAL.DAL
 {
@@ -20,13 +21,26 @@ namespace DEMO.DAL.DAL
             try
             {
                 using var db = new DEMOContext();
-                return db.User.Select(model => new UserIndexViewModel()
+
+                var v1 = db.User.Include(x => x.Car);
+
+                var sqlv1 = v1.ToQueryString();
+
+                var listv1 = v1.ToList();
+
+                var v2 = db.User.Select(model => new UserIndexViewModel()
                 {
                     Id = model.Id,
                     Name = model.Name,
                     Email = model.Email,
                     Cars = model.Car.Count
-                }).ToList();
+                });
+
+                var sqlv2 = v2.ToQueryString();
+
+                var listv2 = v2.ToList();
+
+                return listv2;
             }
             catch
             {
@@ -69,7 +83,14 @@ namespace DEMO.DAL.DAL
             try
             {
                 using var db = new DEMOContext();
-                return db.User.Where(x => x.Id == id).Select(model => new UserDetailsViewModel()
+
+                var v1 = db.User.Include(x => x.Car);
+
+                var sqlv1 = v1.ToQueryString();
+
+                var itemv1 = v1.FirstOrDefault(x => x.Id == id);
+
+                var v2 = db.User.Where(x => x.Id == id).Select(model => new UserDetailsViewModel()
                 {
                     Name = model.Name,
                     Email = model.Email,
@@ -80,7 +101,13 @@ namespace DEMO.DAL.DAL
                         Year = x.Year,
                         Color = x.Color
                     })
-                }).SingleOrDefault();
+                });
+
+                var sqlv2 = v2.ToQueryString();
+
+                var itemv2 = v2.SingleOrDefault();
+
+                return itemv2;
             }
             catch
             {

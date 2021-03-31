@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DEMO.DAL.Models;
 using DEMO.VM.Car;
+using Microsoft.EntityFrameworkCore;
 
 namespace DEMO.DAL.DAL
 {
@@ -19,14 +20,27 @@ namespace DEMO.DAL.DAL
             try
             {
                 using var db = new DEMOContext();
-                return db.Car.Select(model => new CarIndexViewModel()
+
+                var v1 = db.Car.Include(x => x.Owner);
+
+                var sqlv1 = v1.ToQueryString();
+
+                var listv1 = v1.ToList();
+
+                var v2 = db.Car.Select(model => new CarIndexViewModel()
                 {
                     Id = model.Id,
                     OwnerName = model.Owner.Name,
                     Model = model.Model,
                     Year = model.Year,
                     Color = model.Color
-                }).ToList();
+                });
+
+                var sqlv2 = v2.ToQueryString();
+
+                var listv2 = v2.ToList();
+
+                return v2;
             }
             catch
             {
